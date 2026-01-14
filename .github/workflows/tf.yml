@@ -1,0 +1,117 @@
+name: Terraform CI/CD (Dev & Prod)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      env:
+        description: 'Environment to deploy (dev or prod)'
+        required: true
+        default: 'dev'
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: 1.6.6
+  TF_IN_AUTOMATION: true
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.env }}
+
+    steps:
+      # -------------------------------
+      # Checkout the code
+      # -------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -------------------------------
+      # Set environment
+      # -------------------------------
+      - name: Set TF_ENV
+        run: echo "TF_ENV=${{ github.event.inputs.env }}" >> $GITHUB_ENV
+
+      # -------------------------------
+      # AWS OIDC Authentication
+      # -------------------------------
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets["AWS_ROLE_ARN_" + env.TF_ENV] }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # -------------------------------
+      # Setup Terraform
+      # -------------------------------
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      # -------------------------------
+      # Terraform Init
+      # -------------------------------
+      - name: Terraform Init
+        run: terraform init
+
+      # -------------------------------
+      # Terraform Format & Validate
+      # -------------------------------
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      # -------------------------------
+      # Terraform Plan
+      # -------------------------------
+      - name: Terraform Plan
+        run: terraform plan -input=false -out=tfplan
+
+      # -------------------------------
+      # Security Scan (tfsec)
+      # -------------------------------
+      - name: tfsec Security Scan
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: .
+
+      # -------------------------------
+      # Cost Analysis (Infracost)
+      # -------------------------------
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v3
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Infracost Breakdown
+        run: infracost breakdown --path . --format table
+
+      - name: Infracost Diff
+        run: infracost diff --path . --compare-to infracost.json || echo "No previous run to compare"
+
+      # -------------------------------
+      # Terraform Apply
+      # -------------------------------
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
+
+      # -------------------------------
+      # Drift Detection (Optional)
+      # -------------------------------
+      - name: Terraform Drift Detection
+        run: |
+          terraform plan -detailed-exitcode -no-color || EXIT_CODE=$?
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "Drift detected in ${TF_ENV}"
+            # Optional: create GitHub issue or notify
+          fi

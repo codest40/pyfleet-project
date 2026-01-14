@@ -1,0 +1,49 @@
+
+# Complete
+
+app + db conn
+alb + waf + cloudfront
+alb logs via s3
+waf + cloudfront logs via cloudwatch
+
+
+
+# Basic Terraform workflow
+
+1️⃣ Root Module
+   └─ Provides input values to a module
+      e.g., module "alb" {
+              vpc_id = module.network.vpc_id
+              certificate_arn = module.acm.regional_cert_arn
+            }
+
+2️⃣ Module Variables (`variables.tf`)
+   └─ Declare placeholders for expected inputs
+      e.g., variable "vpc_id" { type = string }
+            variable "certificate_arn" { type = string }
+
+3️⃣ Module main.tf (Resource Creation)
+   └─ Use variables to create AWS resources
+      e.g., 
+      resource "aws_lb_listener" "https" {
+          load_balancer_arn = var.alb_arn
+          port              = 443
+          protocol          = "HTTPS"
+          certificate_arn   = var.certificate_arn
+      }
+   - **Left side** = Terraform AWS resource arguments (predefined keywords)
+   - **Right side** = values from module variables, other resources, or literals
+
+4️⃣ Optional Module Outputs (`outputs.tf`)
+   └─ Expose useful values for other modules or root
+      e.g., 
+      output "alb_arn" {
+          value = aws_lb.this.arn
+      }
+
+5️⃣ AWS API
+   └─ Terraform uses the provider to send the resource arguments and values to AWS
+      → Creates ALB, Listener, S3 Bucket, etc.
+
+
+
