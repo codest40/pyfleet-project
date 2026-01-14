@@ -4,7 +4,7 @@
 DATE=$(date +%Y-%m-%d)
 
 if [ -z "$1" ]; then
-    COMMIT_MSG="e. fix(AUTO): $DATE"
+    COMMIT_MSG="fix(AUTO-COMMIT): $DATE"
 else
     COMMIT_MSG="$1"
 fi
