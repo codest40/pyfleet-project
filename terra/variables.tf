@@ -17,7 +17,6 @@ variable "region" {
 variable "active_color" {
   description = "Which ASG should receive traffic: blue or green"
   type        = string
-  default     = "blue"
 }
 
 variable "required_capacity" {
