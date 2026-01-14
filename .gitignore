@@ -37,6 +37,7 @@ $RECYCLE.BIN/
 # Environment / Secrets
 ########################################
 
+env
 .env
 .env.*
 !.env.example
