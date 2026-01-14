@@ -1,117 +1,135 @@
-name: Terraform CI/CD (Dev & Prod)
+name: Terraform CI/CD Pipeline
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
-      env:
-        description: 'Environment to deploy (dev or prod)'
+      tf_env:
+        description: 'Target environment'
         required: true
-        default: 'dev'
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prod
+      tf_action:
+        description: 'Action to perform'
+        required: true
+        default: plan
+        type: choice
+        options:
+          - plan
+          - apply
+          - promote
+          - destroy
 
 permissions:
   id-token: write
   contents: read
-  pull-requests: write
 
 env:
   AWS_REGION: us-east-1
   TF_VERSION: 1.6.6
   TF_IN_AUTOMATION: true
+  TF_DIR: ./pyfleet-tf
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.env }}
 
     steps:
-      # -------------------------------
-      # Checkout the code
-      # -------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # -------------------------------
-      # Set environment
-      # -------------------------------
-      - name: Set TF_ENV
-        run: echo "TF_ENV=${{ github.event.inputs.env }}" >> $GITHUB_ENV
-
-      # -------------------------------
-      # AWS OIDC Authentication
-      # -------------------------------
-      - name: Configure AWS credentials via OIDC
+      - name: AWS OIDC Auth
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets["AWS_ROLE_ARN_" + env.TF_ENV] }}
+          role-to-assume: ${{ secrets.PYFLEET_ARN }}-${{ github.event.inputs.tf_env }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # -------------------------------
-      # Setup Terraform
-      # -------------------------------
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      # -------------------------------
-      # Terraform Init
-      # -------------------------------
       - name: Terraform Init
         run: terraform init
+        working-directory: ${{ env.TF_DIR }}
 
-      # -------------------------------
-      # Terraform Format & Validate
-      # -------------------------------
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
+        working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Validate
         run: terraform validate
+        working-directory: ${{ env.TF_DIR }}
 
-      # -------------------------------
-      # Terraform Plan
-      # -------------------------------
-      - name: Terraform Plan
-        run: terraform plan -input=false -out=tfplan
-
-      # -------------------------------
+      # -------------------------
       # Security Scan (tfsec)
-      # -------------------------------
-      - name: tfsec Security Scan
+      # -------------------------
+      - name: Run tfsec
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
-          working_directory: .
+          working_directory: ${{ env.TF_DIR }}
 
-      # -------------------------------
-      # Cost Analysis (Infracost)
-      # -------------------------------
+      # -------------------------
+      # Infracost Setup & Scan
+      # -------------------------
       - name: Setup Infracost
         uses: infracost/actions/setup@v3
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
       - name: Infracost Breakdown
-        run: infracost breakdown --path . --format table
+        run: infracost breakdown --path ${{ env.TF_DIR }} --format json --out-file infracost.json
 
       - name: Infracost Diff
-        run: infracost diff --path . --compare-to infracost.json || echo "No previous run to compare"
+        run: infracost diff --path ${{ env.TF_DIR }} --compare-to infracost.json
 
-      # -------------------------------
-      # Terraform Apply
-      # -------------------------------
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve tfplan
-
-      # -------------------------------
-      # Drift Detection (Optional)
-      # -------------------------------
-      - name: Terraform Drift Detection
+      # -------------------------
+      # Determine Active Color (Prod only)
+      # -------------------------
+      - name: Determine Active Color (Prod)
+        if: ${{ github.event.inputs.tf_env == 'prod' && github.event.inputs.tf_action == 'promote' }}
+        id: active_asg
         run: |
-          terraform plan -detailed-exitcode -no-color || EXIT_CODE=$?
-          if [ "$EXIT_CODE" -eq 2 ]; then
-            echo "Drift detected in ${TF_ENV}"
-            # Optional: create GitHub issue or notify
+          CURRENT=$(terraform output -raw active_asg)
+          echo "current=$CURRENT" >> $GITHUB_ENV
+          if [[ "$CURRENT" == "asg_blue" ]]; then
+            echo "next_color=green" >> $GITHUB_ENV
+          else
+            echo "next_color=blue" >> $GITHUB_ENV
           fi
+          echo "Promoting to ${{ env.next_color }}"
+        working-directory: ${{ env.TF_DIR }}
+
+      # -------------------------
+      # Terraform Plan
+      # -------------------------
+      - name: Terraform Plan
+        if: ${{ github.event.inputs.tf_action == 'plan' || github.event.inputs.tf_action == 'promote' }}
+        run: |
+          if [[ "${{ github.event.inputs.tf_action }}" == "promote" ]]; then
+            terraform plan -var="active_color=${{ env.next_color }}"
+          else
+            terraform plan -var="active_color=blue"
+        working-directory: ${{ env.TF_DIR }}
+
+      # -------------------------
+      # Terraform Apply
+      # -------------------------
+      - name: Terraform Apply
+        if: ${{ github.event.inputs.tf_action == 'apply' || github.event.inputs.tf_action == 'promote' }}
+        run: |
+          if [[ "${{ github.event.inputs.tf_action }}" == "promote" ]]; then
+            terraform apply -auto-approve -var="active_color=${{ env.next_color }}"
+          else
+            terraform apply -auto-approve -var="active_color=blue"
+        working-directory: ${{ env.TF_DIR }}
+
+      # -------------------------
+      # Terraform Destroy
+      # -------------------------
+      - name: Terraform Destroy
+        if: ${{ github.event.inputs.tf_action == 'destroy' }}
+        run: terraform destroy -auto-approve
+        working-directory: ${{ env.TF_DIR }}
