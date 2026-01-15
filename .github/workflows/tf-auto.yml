@@ -157,6 +157,7 @@ jobs:
             terraform plan -var="active_color=${{ env.next_color }}"
           else
             terraform plan -var="active_color=blue"
+          fi
         working-directory: ${{ env.TF_DIR }}
 
       # -------------------------
@@ -169,6 +170,7 @@ jobs:
             terraform apply -auto-approve -var="active_color=${{ env.next_color }}"
           else
             terraform apply -auto-approve -var="active_color=blue"
+          fi
         working-directory: ${{ env.TF_DIR }}
 
       # -------------------------
