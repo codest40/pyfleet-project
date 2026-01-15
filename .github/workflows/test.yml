@@ -1,8 +1,16 @@
-name: OIDC & Secrets + AWS Test
+name: OIDC & Secrets + AWS Test (Dynamic)
 
 on:
   workflow_dispatch:
-  push:
+    inputs:
+      tf_env:
+        description: 'Target environment to test'
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prod
 
 permissions:
   id-token: write
@@ -11,6 +19,9 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: us-east-1
 
     steps:
       - name: Checkout repo
@@ -38,22 +49,22 @@ jobs:
       # -------------------------
       # Assume AWS Role via OIDC
       # -------------------------
-      - name: AWS OIDC Auth (Dev)
+      - name: AWS OIDC Auth
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.PYFLEET_ARN }}-dev
-          aws-region: us-east-1
+          role-to-assume: ${{ secrets.PYFLEET_ARN }}-${{ github.event.inputs.tf_env }}
+          aws-region: ${{ env.AWS_REGION }}
 
       # -------------------------
       # Test AWS Access
       # -------------------------
       - name: List S3 Buckets
         run: |
-          echo "Listing S3 buckets to test AWS access:"
+          echo "Listing S3 buckets to test AWS access for ${{ github.event.inputs.tf_env }}:"
           aws s3 ls
 
       # -------------------------
-      # Optional: Show OIDC token
+      # Show OIDC token
       # -------------------------
       - name: Request OIDC Token
         run: |
