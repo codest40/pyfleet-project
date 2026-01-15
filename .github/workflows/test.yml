@@ -1,4 +1,4 @@
-name: OIDC & Secrets + AWS Test (Dynamic)
+name: OIDC & Secrets + AWS Test
 
 on:
   workflow_dispatch:

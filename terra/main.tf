@@ -45,6 +45,7 @@ module "ecr" {
   source    = "./modules/ecr"
   repo_name = "pyfleet-ecr"
   region    = var.region
+  kms_key_arn  = module.kms.ecr_kms_key_arn
 }
 
 # -------------------------
@@ -94,6 +95,7 @@ module "waf_cf" {
   admin_ip_allowlist = ["203.0.113.10/32"]
   blocked_countries  = ["CN", "RU"]
   enable_logging     = true
+  logs_kms_arn = module.kms.logs_kms_key_arn
   tags               = var.tags
 }
 
@@ -234,6 +236,13 @@ module "monitoring" {
 }
 
 # =========================
+# KEY MGT SERVICE MODULE
+# =========================
+module "kms" {
+  source = "./modules/kms"
+}
+
+# =========================
 # COST MONITORING MODULE
 # =========================
 module "cost_monitoring" {
@@ -248,3 +257,4 @@ module "cost_monitoring" {
     ManagedBy = "Terraform"
   }
 }
+

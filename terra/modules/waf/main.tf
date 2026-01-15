@@ -108,6 +108,11 @@ resource "aws_wafv2_web_acl" "this" {
   }
 }
 
+# Customer Managed Key
+resource "aws_cloudwatch_log_group" "waf_logs" {
+  kms_key_id = var.logs_kms_arn
+}
+
 # Admin IP Set
 resource "aws_wafv2_ip_set" "admin" {
   count              = length(var.admin_ip_allowlist) > 0 ? 1 : 0
