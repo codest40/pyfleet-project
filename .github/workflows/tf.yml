@@ -112,14 +112,14 @@ jobs:
           else
             echo "S3 bucket $BUCKET_NAME does not exist"
           fi
-
-         # Check DynamoDB table
+          # Check DynamoDB table
           if ! aws dynamodb describe-table --table-name "$LOCK_TABLE" --region "$REGION" >/dev/null 2>&1; then
             echo "✅ DynamoDB table $LOCK_TABLE confirmed deleted"
           else
             echo "❌ DynamoDB table $LOCK_TABLE still exists"
           fi
         shell: bash
+
 
       # -------------------------
       # Setup Terraform (plan/apply/promote/destroy)
