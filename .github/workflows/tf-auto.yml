@@ -32,7 +32,6 @@ env:
   TF_IN_AUTOMATION: true
   TF_INPUT: false                # Ensure non-interactive mode
   TF_DIR: ./terra
-  TF_VAR_alert_emails: '["ops@pyfleet.io"]' # Example; ensure all required vars set
 
 jobs:
   terraform:
@@ -126,7 +125,7 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        run: terraform init -reconfigure -lock-timeout=5m
+        run: terraform init -lock-timeout=5m
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Format Check
