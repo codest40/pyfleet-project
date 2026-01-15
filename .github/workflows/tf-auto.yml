@@ -30,7 +30,9 @@ env:
   AWS_REGION: us-east-1
   TF_VERSION: 1.6.6
   TF_IN_AUTOMATION: true
+  TF_INPUT: false                # Ensure non-interactive mode
   TF_DIR: ./terra
+  TF_VAR_alert_emails: '["ops@pyfleet.io"]' # Example; ensure all required vars set
 
 jobs:
   terraform:
@@ -46,59 +48,90 @@ jobs:
           role-to-assume: ${{ secrets.PYFLEET_ARN }}-${{ github.event.inputs.tf_env }}
           aws-region: ${{ env.AWS_REGION }}
 
-
+      # -------------------------
+      # Ensure Backend Exists
+      # -------------------------
       - name: Ensure Terraform Backend Exists
-        if: ${{ github.event.inputs.tf_action != 'destroy-backend' }}
+        if: ${{ github.event.inputs.tf_action != 'destroy' }}
         run: |
           BUCKET_NAME="pyfleet-backend-tf"
           LOCK_TABLE="pyfleet-lock-tf"
 
+          echo "Checking Terraform backend resources..."
+
+          # Flags for existence
+          S3_EXISTS=false
+          DDB_EXISTS=false
+
+          # -------------------------
           # Check S3 bucket
+          # -------------------------
           if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
-            echo "✅ S3 bucket $BUCKET_NAME already exists"
+            echo "✅ S3 bucket exists: $BUCKET_NAME"
+            S3_EXISTS=true
           else
-            echo "⚠️ S3 bucket $BUCKET_NAME not found. Creating..."
+            echo "⚠️ S3 bucket not found: $BUCKET_NAME"
+          fi
+
+          # -------------------------
+          # Check DynamoDB table
+          # -------------------------
+          if aws dynamodb describe-table --table-name "$LOCK_TABLE" 2>/dev/null; then
+            echo "✅ DynamoDB table exists: $LOCK_TABLE"
+            DDB_EXISTS=true
+          else
+            echo "⚠️ DynamoDB table not found: $LOCK_TABLE"
+          fi
+
+          # -------------------------
+          # Create missing resources
+          # -------------------------
+          if [ "$S3_EXISTS" = false ]; then
+            echo "🛠 Creating S3 bucket..."
             if [ "$AWS_REGION" = "us-east-1" ]; then
               aws s3api create-bucket \
-                --bucket "$BUCKET_NAME"
+                --bucket "$BUCKET_NAME" \
                 --region "$AWS_REGION"
             else
-              echo "Detected Region: ${AWS_REGION}. Using LocationConstraint"
               aws s3api create-bucket \
                 --bucket "$BUCKET_NAME" \
                 --region "$AWS_REGION" \
                 --create-bucket-configuration LocationConstraint="$AWS_REGION"
             fi
-            echo "✅ S3 bucket $BUCKET_NAME created"
+            echo "✅ S3 bucket created"
           fi
 
-          # Check DynamoDB table
-          if aws dynamodb describe-table --table-name "$LOCK_TABLE" 2>/dev/null; then
-            echo "✅ DynamoDB table $LOCK_TABLE already exists"
-          else
-            echo "⚠️ DynamoDB table $LOCK_TABLE not found. Creating..."
+          if [ "$DDB_EXISTS" = false ]; then
+            echo "🛠 Creating DynamoDB lock table..."
             aws dynamodb create-table \
               --table-name "$LOCK_TABLE" \
               --attribute-definitions AttributeName=LockID,AttributeType=S \
               --key-schema AttributeName=LockID,KeyType=HASH \
               --billing-mode PAY_PER_REQUEST
-            echo "✅ DynamoDB table $LOCK_TABLE created"
+            echo "✅ DynamoDB table created"
           fi
+
+          # Wait for consistency
+          aws s3api wait bucket-exists --bucket "$BUCKET_NAME"
+          aws dynamodb wait table-exists --table-name "$LOCK_TABLE"
+          echo "Backend ready"
         shell: bash
 
-
+      # -------------------------
+      # Setup Terraform
+      # -------------------------
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        run: terraform init -reconfigure
+        run: terraform init -reconfigure -lock-timeout=5m
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Format Check
         run: |
-            terraform fmt -check -recursive || { echo "Run 'terraform fmt -recursive' locally fix formatting"; exit 1; }
+            terraform fmt -check -recursive || { echo "Run 'terraform fmt -recursive' locally to fix formatting"; exit 1; }
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Validate
@@ -154,9 +187,9 @@ jobs:
         if: ${{ github.event.inputs.tf_action == 'plan' || github.event.inputs.tf_action == 'promote' }}
         run: |
           if [[ "${{ github.event.inputs.tf_action }}" == "promote" ]]; then
-            terraform plan -var="active_color=${{ env.next_color }}"
+            terraform plan -input=false -lock-timeout=5m -var="active_color=${{ env.next_color }}"
           else
-            terraform plan -var="active_color=blue"
+            terraform plan -input=false -lock-timeout=5m -var="active_color=blue"
           fi
         working-directory: ${{ env.TF_DIR }}
 
@@ -167,9 +200,9 @@ jobs:
         if: ${{ github.event.inputs.tf_action == 'apply' || github.event.inputs.tf_action == 'promote' }}
         run: |
           if [[ "${{ github.event.inputs.tf_action }}" == "promote" ]]; then
-            terraform apply -auto-approve -var="active_color=${{ env.next_color }}"
+            terraform apply -input=false -lock-timeout=5m -auto-approve -var="active_color=${{ env.next_color }}"
           else
-            terraform apply -auto-approve -var="active_color=blue"
+            terraform apply -input=false -lock-timeout=5m -auto-approve -var="active_color=blue"
           fi
         working-directory: ${{ env.TF_DIR }}
 
@@ -178,11 +211,14 @@ jobs:
       # -------------------------
       - name: Terraform Destroy
         if: ${{ github.event.inputs.tf_action == 'destroy' }}
-        run: terraform destroy -auto-approve
+        run: terraform destroy -input=false -lock-timeout=5m -auto-approve
         working-directory: ${{ env.TF_DIR }}
 
-
-      - name: Destroy S3 Backend and Lock Table Too
+      # -------------------------
+      # Destroy S3 Backend and Lock Table
+      # -------------------------
+      - name: Destroy Backend (S3 + DynamoDB)
+        if: ${{ github.event.inputs.tf_action == 'destroy' }}
         run: |
           BUCKET_NAME="pyfleet-backend-tf"
           LOCK_TABLE="pyfleet-lock-tf"
@@ -198,22 +234,17 @@ jobs:
 
           echo "✅ Terraform backend destroyed"
 
-          # -------------------------
-          # Confirm backend deletion
-          # -------------------------
-
-          # Check DynamoDB table
+          # Confirm deletion
           if ! aws dynamodb describe-table --table-name "$LOCK_TABLE" --region "$AWS_REGION" >/dev/null 2>&1; then
             echo "✅ DynamoDB table $LOCK_TABLE confirmed deleted"
           else
             echo "❌ DynamoDB table $LOCK_TABLE still exists"
           fi
 
-          # Check S3 bucket
           if ! aws s3 ls "s3://$BUCKET_NAME" >/dev/null 2>&1; then
             echo "✅ S3 bucket $BUCKET_NAME confirmed deleted"
           else
             echo "❌ S3 bucket $BUCKET_NAME still exists or not empty"
           fi
-
         shell: bash
+
