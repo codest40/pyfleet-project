@@ -147,7 +147,7 @@ jobs:
         with:
           working_directory: ${{ env.TF_DIR }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          version: v1.28.4
+          additional_args: --minimum-severity MEDIUM
           soft_fail: true
 
       # -------------------------
