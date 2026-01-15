@@ -61,7 +61,7 @@ jobs:
             aws s3api create-bucket \
               --bucket "$BUCKET_NAME" \
               --region ${{ env.AWS_REGION }} \
-              --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }}
+              # --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }}
             echo "✅ S3 bucket $BUCKET_NAME created"
           fi
 
