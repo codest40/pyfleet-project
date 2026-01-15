@@ -58,16 +58,16 @@ jobs:
             echo "✅ S3 bucket $BUCKET_NAME already exists"
           else
             echo "⚠️ S3 bucket $BUCKET_NAME not found. Creating..."
-            if [ ${{ env.AWS_REGION }} = "us-east-1" ]; then
+            if [ "$AWS_REGION" = "us-east-1" ]; then
               aws s3api create-bucket \
                 --bucket "$BUCKET_NAME"
-                --region ${{ env.AWS_REGION }}
+                --region "$AWS_REGION"
             else
-              echo "Detected Region: ${{ env.AWS_REGION }}. Using LocationConstraint"
+              echo "Detected Region: ${AWS_REGION}. Using LocationConstraint"
               aws s3api create-bucket \
                 --bucket "$BUCKET_NAME" \
-                --region ${{ env.AWS_REGION }} \
-                --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }}
+                --region "$AWS_REGION" \
+                --create-bucket-configuration LocationConstraint="$AWS_REGION"
             fi
             echo "✅ S3 bucket $BUCKET_NAME created"
           fi
@@ -199,7 +199,7 @@ jobs:
           # -------------------------
 
           # Check DynamoDB table
-          if ! aws dynamodb describe-table --table-name "$LOCK_TABLE" --region "$REGION" >/dev/null 2>&1; then
+          if ! aws dynamodb describe-table --table-name "$LOCK_TABLE" --region "$AWS_REGION" >/dev/null 2>&1; then
             echo "✅ DynamoDB table $LOCK_TABLE confirmed deleted"
           else
             echo "❌ DynamoDB table $LOCK_TABLE still exists"
