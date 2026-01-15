@@ -97,7 +97,8 @@ jobs:
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Format Check
-        run: terraform fmt -check -recursive
+        run: |
+            terraform fmt -check -recursive || { echo "Run 'terraform fmt -recursive' locally fix formatting"; exit 1; }
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Validate

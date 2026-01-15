@@ -146,6 +146,7 @@ jobs:
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
           working_directory: ${{ env.TF_DIR }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # -------------------------
       # Infracost Setup & Scan
