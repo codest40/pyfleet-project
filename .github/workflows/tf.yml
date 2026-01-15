@@ -193,6 +193,7 @@ jobs:
           if [[ "${{ github.event.inputs.tf_action }}" == "promote" ]]; then
             terraform plan -var="active_color=${{ env.next_color }}"
           else
+            echo "Planning standard deploy (blue)"
             terraform plan -var="active_color=blue"
           fi
         working-directory: ${{ env.TF_DIR }}
@@ -204,8 +205,10 @@ jobs:
         if: ${{ github.event.inputs.tf_action == 'apply' || github.event.inputs.tf_action == 'promote' }}
         run: |
           if [[ "${{ github.event.inputs.tf_action }}" == "promote" ]]; then
+            echo "Planning promotion to New Site: ${{ env.next_color }}"
             terraform apply -auto-approve -var="active_color=${{ env.next_color }}"
           else
+            echo "Planning standard deploy (blue)"
             terraform apply -auto-approve -var="active_color=blue"
           fi
         working-directory: ${{ env.TF_DIR }}
