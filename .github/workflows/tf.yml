@@ -208,7 +208,7 @@ jobs:
             terraform plan -var="active_color=${{ env.next_color }}"
           else
             echo "Planning standard deploy (blue)"
-            terraform plan -var="active_color=blue"
+            terraform plan -var="active_color=blue" -input=false
           fi
         working-directory: ${{ env.TF_DIR }}
 
