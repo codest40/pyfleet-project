@@ -147,6 +147,8 @@ jobs:
         with:
           working_directory: ${{ env.TF_DIR }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          version: v1.28.4
+          soft_fail: true
 
       # -------------------------
       # Infracost Setup & Scan

@@ -5,6 +5,11 @@ resource "aws_ecr_repository" "app_repo" {
   name                 = var.repo_name
   image_tag_mutability = "MUTABLE"
 
+  encryption_configuration {
+    encryption_type = "KMS"
+    kms_key         = aws_kms_key.ecr.arn
+  }
+
   tags = {
     Name = var.repo_name
   }

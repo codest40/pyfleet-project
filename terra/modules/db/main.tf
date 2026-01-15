@@ -1,5 +1,6 @@
 # DB Security Group
 resource "aws_security_group" "db_sg" {
+  description = "Security group for PostgreSQL database"
   name   = "pyfleet-db-sg"
   vpc_id = var.vpc_id
 
@@ -41,6 +42,7 @@ resource "aws_db_instance" "primary" {
   db_subnet_group_name   = aws_db_subnet_group.db_subnets.name
   vpc_security_group_ids = [aws_security_group.db_sg.id]
   multi_az               = var.multi_az
+  performance_insights_enabled = true
   publicly_accessible    = false
   skip_final_snapshot    = true
 
@@ -59,6 +61,7 @@ resource "aws_db_instance" "replicas" {
   vpc_security_group_ids = [aws_security_group.db_sg.id]
   publicly_accessible    = false
   replicate_source_db    = aws_db_instance.primary.arn
+  performance_insights_enabled = true
   skip_final_snapshot    = true
 
   tags = merge(var.tags, { Role = "replica-${count.index + 1}" })
