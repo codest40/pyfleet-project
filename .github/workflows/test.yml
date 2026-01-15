@@ -1,16 +1,25 @@
-name: Troubleshooting Secrets Test
+name: OIDC & Secrets + AWS Test
 
 on:
   workflow_dispatch:
+  push:
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
-  check-secrets:
+  test:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Check PYFLEET_ARN secret
+      # -------------------------
+      # Verify GitHub Secrets
+      # -------------------------
+      - name: Verify Secrets
         run: |
           if [ -z "${{ secrets.PYFLEET_ARN }}" ]; then
             echo "❌ PYFLEET_ARN not found!"
@@ -19,8 +28,6 @@ jobs:
             echo "✅ PYFLEET_ARN found"
           fi
 
-      - name: Check INFRACOST_API_KEY secret
-        run: |
           if [ -z "${{ secrets.INFRACOST_API_KEY }}" ]; then
             echo "❌ INFRACOST_API_KEY not found!"
             exit 1
@@ -28,13 +35,31 @@ jobs:
             echo "✅ INFRACOST_API_KEY found"
           fi
 
-      - name: Test OIDC Assume Role (dry-run)
+      # -------------------------
+      # Assume AWS Role via OIDC
+      # -------------------------
+      - name: AWS OIDC Auth (Dev)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.PYFLEET_ARN }}-dev
           aws-region: us-east-1
 
-      - name: Test AWS CLI call
+      # -------------------------
+      # Test AWS Access
+      # -------------------------
+      - name: List S3 Buckets
         run: |
-          echo "Trying to list S3 buckets..."
-          aws s3 ls || echo "⚠️ Could not list buckets. Check IAM role permissions."
+          echo "Listing S3 buckets to test AWS access:"
+          aws s3 ls
+
+      # -------------------------
+      # Optional: Show OIDC token
+      # -------------------------
+      - name: Request OIDC Token
+        run: |
+          echo "Requesting OIDC token..."
+          curl -s -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+               "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq .
+        env:
+          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ github.event.inputs.ACTIONS_ID_TOKEN_REQUEST_URL || '' }}
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ github.event.inputs.ACTIONS_ID_TOKEN_REQUEST_TOKEN || '' }}

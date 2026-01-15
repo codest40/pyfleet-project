@@ -3,12 +3,12 @@
 --------------------------------------------------------------------------------
 ### Overview:
 
-PyFleet Project v2 (Terraform + AWS) is a professional AWS-based platform deployment project demonstrating
+PyFleet Project (Terraform + AWS) is an AWS-based platform deployment project demonstrating
 DevOps, SRE, and Platform Engineering best practices. The infrastructure is
 modular, reusable, and fully automated with Terraform, providing:
 
   - EC2-based web application deployment (pyfleet app) in private subnets
-  - Blue-Green deployment with ALB v2
+  - Blue-Green deployment with ALB 
   - ALB integrated with WAF rules & optional CloudFront
   - Postgres RDS primary + read replicas
   - Secure app-to-DB connectivity via dedicated Security Groups
@@ -92,7 +92,7 @@ modular, reusable, and fully automated with Terraform, providing:
       - aws_iam_instance_profile
       - Policy attachment (ECR read-only)
   
-  2. ALB v2 Module
+  2. ALB Module
       - aws_lb (Application Load Balancer)
       - Security Group for ALB (HTTP/HTTPS)
       - Blue-Green target groups
@@ -107,7 +107,7 @@ modular, reusable, and fully automated with Terraform, providing:
       - Manual DuckDNS validation
       - Outputs certificate ARN
 
-  4. ASG v2 Module
+  4. ASG Module
       - aws_launch_template for EC2 configuration
       - IAM instance profile, security groups, user-data Docker setup
       - aws_autoscaling_group with blue/green support

@@ -1,10 +1,10 @@
 
 terraform {
   backend "s3" {
-    bucket         = "tf-backend-pyfleet"
+    bucket         = "pyfleet-backend-tf"
     key            = "pyfleet/terraform.tfstate"
     region         = "us-east-1"
-    dynamodb_table = "tf-lock-pyfleet"
+    dynamodb_table = "pyfleet-lock-tf"
     encrypt        = true
     #    profile        = admin-codest
   }

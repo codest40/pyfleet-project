@@ -17,7 +17,6 @@ on:
         default: plan
         type: choice
         options:
-          - create-backend
           - plan
           - apply
           - promote
@@ -33,8 +32,6 @@ env:
   TF_VERSION: 1.6.6
   TF_IN_AUTOMATION: true
   TF_DIR: ./terra
-  BUCKET_NAME: pyfleet-backend-tf
-  LOCK_TABLE: pyfleet-lock-tf
 
 jobs:
   terraform:
@@ -50,15 +47,14 @@ jobs:
           role-to-assume: ${{ secrets.PYFLEET_ARN }}-${{ github.event.inputs.tf_env }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # -------------------------
-      # Create Backend
-      # -------------------------
-      - name: Create Terraform Backend
-        if: ${{ github.event.inputs.tf_action == 'create-backend' }}
-        run: |
-          echo "Creating Terraform backend S3 bucket and DynamoDB table if not exists..."
 
-          # S3 bucket
+      - name: Ensure Terraform Backend Exists
+        if: ${{ github.event.inputs.tf_action != 'destroy-backend' }}
+        run: |
+          BUCKET_NAME="pyfleet-backend-tf"
+          LOCK_TABLE="pyfleet-lock-tf"
+
+          # Check S3 bucket
           if aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
             echo "✅ S3 bucket $BUCKET_NAME already exists"
           else
@@ -70,7 +66,7 @@ jobs:
             echo "✅ S3 bucket $BUCKET_NAME created"
           fi
 
-          # DynamoDB table
+          # Check DynamoDB table
           if aws dynamodb describe-table --table-name "$LOCK_TABLE" 2>/dev/null; then
             echo "✅ DynamoDB table $LOCK_TABLE already exists"
           else
@@ -84,49 +80,40 @@ jobs:
           fi
         shell: bash
 
-      # -------------------------
-      # Destroy Backend
-      # -------------------------
-      - name: Destroy Terraform Backend
+
+      - name: Destroy S3 Backend and Lock Table
         if: ${{ github.event.inputs.tf_action == 'destroy-backend' }}
         run: |
+          BUCKET_NAME="pyfleet-backend-tf"
+          LOCK_TABLE="pyfleet-lock-tf"
+
           echo "Deleting Terraform backend S3 bucket and DynamoDB table..."
 
           # Delete DynamoDB table
           aws dynamodb delete-table --table-name "$LOCK_TABLE" || echo "DynamoDB table $LOCK_TABLE does not exist"
 
-          # Empty S3 bucket including all folders first
-          if aws s3 ls "s3://$BUCKET_NAME" >/dev/null 2>&1; then
-            aws s3 rm "s3://$BUCKET_NAME" --recursive
-            echo "✅ All objects deleted from $BUCKET_NAME"
-            aws s3api delete-bucket --bucket "$BUCKET_NAME"
-            echo "✅ S3 bucket $BUCKET_NAME deleted"
-          else
-            echo "S3 bucket $BUCKET_NAME does not exist"
-          fi
+          # Empty and delete S3 bucket
+          aws s3 rm s3://"$BUCKET_NAME" --recursive || echo "S3 bucket $BUCKET_NAME is empty or does not exist"
+          aws s3api delete-bucket --bucket "$BUCKET_NAME" || echo "S3 bucket $BUCKET_NAME does not exist"
+
+          echo "✅ Terraform backend destroyed"
         shell: bash
 
-      # -------------------------
-      # Setup Terraform (plan/apply/promote/destroy)
-      # -------------------------
+
       - name: Setup Terraform
-        if: ${{ github.event.inputs.tf_action != 'create-backend' && github.event.inputs.tf_action != 'destroy-backend' }}
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        if: ${{ github.event.inputs.tf_action != 'create-backend' && github.event.inputs.tf_action != 'destroy-backend' }}
         run: terraform init
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Format Check
-        if: ${{ github.event.inputs.tf_action != 'create-backend' && github.event.inputs.tf_action != 'destroy-backend' }}
         run: terraform fmt -check -recursive
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Validate
-        if: ${{ github.event.inputs.tf_action != 'create-backend' && github.event.inputs.tf_action != 'destroy-backend' }}
         run: terraform validate
         working-directory: ${{ env.TF_DIR }}
 
@@ -134,7 +121,6 @@ jobs:
       # Security Scan (tfsec)
       # -------------------------
       - name: Run tfsec
-        if: ${{ github.event.inputs.tf_action != 'create-backend' && github.event.inputs.tf_action != 'destroy-backend' }}
         uses: aquasecurity/tfsec-action@v1.0.3
         with:
           working_directory: ${{ env.TF_DIR }}
@@ -143,17 +129,14 @@ jobs:
       # Infracost Setup & Scan
       # -------------------------
       - name: Setup Infracost
-        if: ${{ github.event.inputs.tf_action != 'create-backend' && github.event.inputs.tf_action != 'destroy-backend' }}
         uses: infracost/actions/setup@v3
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
       - name: Infracost Breakdown
-        if: ${{ github.event.inputs.tf_action != 'create-backend' && github.event.inputs.tf_action != 'destroy-backend' }}
         run: infracost breakdown --path ${{ env.TF_DIR }} --format json --out-file infracost.json
 
       - name: Infracost Diff
-        if: ${{ github.event.inputs.tf_action != 'create-backend' && github.event.inputs.tf_action != 'destroy-backend' }}
         run: infracost diff --path ${{ env.TF_DIR }} --compare-to infracost.json
 
       # -------------------------
