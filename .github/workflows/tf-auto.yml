@@ -58,10 +58,17 @@ jobs:
             echo "✅ S3 bucket $BUCKET_NAME already exists"
           else
             echo "⚠️ S3 bucket $BUCKET_NAME not found. Creating..."
-            aws s3api create-bucket \
-              --bucket "$BUCKET_NAME" \
-              --region ${{ env.AWS_REGION }} \
-              # --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }}
+            if [ ${{ env.AWS_REGION }} = "us-east-1" ]; then
+              aws s3api create-bucket \
+                --bucket "$BUCKET_NAME"
+                --region ${{ env.AWS_REGION }}
+            else
+              echo "Detected Region: ${{ env.AWS_REGION }}. Using LocationConstraint"
+              aws s3api create-bucket \
+                --bucket "$BUCKET_NAME" \
+                --region ${{ env.AWS_REGION }} \
+                --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }}
+            fi
             echo "✅ S3 bucket $BUCKET_NAME created"
           fi
 
