@@ -94,7 +94,7 @@ resource "aws_eip" "nat" {
 }
 
 resource "aws_nat_gateway" "nat" {
-  for_each = aws_subnet.public_alb
+  for_each      = aws_subnet.public_alb
   allocation_id = aws_eip.nat[each.key].id
   subnet_id     = aws_subnet.public_alb[each.key].id
 
@@ -119,13 +119,13 @@ resource "aws_route" "public_internet_access" {
 
 # Associate public subnets
 resource "aws_route_table_association" "public_alb_assoc" {
-  for_each = aws_subnet.public_alb
+  for_each       = aws_subnet.public_alb
   subnet_id      = each.value.id
   route_table_id = aws_route_table.public.id
 }
 
 resource "aws_route_table_association" "public_bastion_assoc" {
-  for_each = aws_subnet.public_bastion
+  for_each       = aws_subnet.public_bastion
   subnet_id      = each.value.id
   route_table_id = aws_route_table.public.id
 }
@@ -148,7 +148,7 @@ resource "aws_route" "private_app_nat_route" {
 }
 
 resource "aws_route_table_association" "private_app_assoc" {
-  for_each = aws_subnet.private_app
+  for_each       = aws_subnet.private_app
   subnet_id      = each.value.id
   route_table_id = aws_route_table.private_app[each.key].id
 }
@@ -170,7 +170,7 @@ resource "aws_route" "private_db_nat_route" {
 }
 
 resource "aws_route_table_association" "private_db_assoc" {
-  for_each = aws_subnet.private_db
+  for_each       = aws_subnet.private_db
   subnet_id      = each.value.id
   route_table_id = aws_route_table.private_db[each.key].id
 }

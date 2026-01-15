@@ -25,6 +25,6 @@ variable "tags" {
   type        = map(string)
   default = {
     "Project" = "pyfleet"
-    "Owner"   = "DevOps"   # For multi tag purpose
+    "Owner"   = "DevOps" # For multi tag purpose
   }
 }

@@ -46,7 +46,7 @@ resource "aws_db_instance" "primary" {
 
   # Enable automated backups
   backup_retention_period = 7
-  tags = merge(var.tags, { Role = "primary" })
+  tags                    = merge(var.tags, { Role = "primary" })
 }
 
 resource "aws_db_instance" "replicas" {

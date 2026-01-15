@@ -1,12 +1,12 @@
 
 output "bastion_instance_ids" {
   description = "IDs of the bastion EC2 instances (multi-AZ)"
-  value = aws_instance.bastion[*].id
+  value       = aws_instance.bastion[*].id
 }
 
 output "bastion_public_ips" {
   description = "Public IP addresses of bastion instances"
-  value = aws_instance.bastion[*].public_ip
+  value       = aws_instance.bastion[*].public_ip
 }
 
 output "bastion_public_dns" {

@@ -96,15 +96,15 @@ resource "aws_launch_template" "web_lt" {
 # Security Groups
 # -------------------------
 resource "aws_security_group" "asg_sg" {
-  name = "${var.asg_name}-${var.name_suffix}-sg"
-  vpc_id = var.vpc_id 
+  name   = "${var.asg_name}-${var.name_suffix}-sg"
+  vpc_id = var.vpc_id
 
   ingress {
     description     = "Allow SSH from bastion"
     from_port       = 22
     to_port         = 22
     protocol        = "tcp"
-    security_groups = [var.bastion_sg_id] 
+    security_groups = [var.bastion_sg_id]
   }
 
   # Outbound to DB
@@ -178,35 +178,35 @@ resource "aws_autoscaling_group" "web_asg" {
 # SCALING POLICIES
 # -------------------------
 resource "aws_autoscaling_policy" "cpu_scale_up" {
-  name                  = "${var.asg_name}-cpu-scale-up"
+  name                   = "${var.asg_name}-cpu-scale-up"
   autoscaling_group_name = aws_autoscaling_group.web_asg.name
-  adjustment_type       = "ChangeInCapacity"
-  scaling_adjustment    = var.cpu_scale_up_adjustment
-  cooldown              = 300
+  adjustment_type        = "ChangeInCapacity"
+  scaling_adjustment     = var.cpu_scale_up_adjustment
+  cooldown               = 300
 }
 
 resource "aws_autoscaling_policy" "cpu_scale_down" {
-  name                  = "${var.asg_name}-cpu-scale-down"
+  name                   = "${var.asg_name}-cpu-scale-down"
   autoscaling_group_name = aws_autoscaling_group.web_asg.name
-  adjustment_type       = "ChangeInCapacity"
-  scaling_adjustment    = -var.cpu_scale_down_adjustment
-  cooldown              = 300
+  adjustment_type        = "ChangeInCapacity"
+  scaling_adjustment     = -var.cpu_scale_down_adjustment
+  cooldown               = 300
 }
 
 resource "aws_autoscaling_policy" "mem_scale_up" {
-  name                  = "${var.asg_name}-mem-scale-up"
+  name                   = "${var.asg_name}-mem-scale-up"
   autoscaling_group_name = aws_autoscaling_group.web_asg.name
-  adjustment_type       = "ChangeInCapacity"
-  scaling_adjustment    = var.mem_scale_up_adjustment
-  cooldown              = 300
+  adjustment_type        = "ChangeInCapacity"
+  scaling_adjustment     = var.mem_scale_up_adjustment
+  cooldown               = 300
 }
 
 resource "aws_autoscaling_policy" "mem_scale_down" {
-  name                  = "${var.asg_name}-mem-scale-down"
+  name                   = "${var.asg_name}-mem-scale-down"
   autoscaling_group_name = aws_autoscaling_group.web_asg.name
-  adjustment_type       = "ChangeInCapacity"
-  scaling_adjustment    = -var.mem_scale_down_adjustment
-  cooldown              = 300
+  adjustment_type        = "ChangeInCapacity"
+  scaling_adjustment     = -var.mem_scale_down_adjustment
+  cooldown               = 300
 }
 
 # -------------------------

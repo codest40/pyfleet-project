@@ -22,7 +22,7 @@ resource "aws_ecr_lifecycle_policy" "app_repo_policy" {
       {
         rulePriority = 1
         description  = "Keep last 10 images"
-        selection    = {
+        selection = {
           tagStatus   = "any"
           countType   = "imageCountMoreThan"
           countNumber = 10

@@ -5,19 +5,19 @@
 resource "aws_cloudwatch_metric_alarm" "tg_unhealthy_hosts" {
   for_each = var.enable_alerts ? var.target_groups : {}
 
-  alarm_name = "${var.project_name}-${var.environment}-${each.key}-tg-unhealthy"
+  alarm_name        = "${var.project_name}-${var.environment}-${each.key}-tg-unhealthy"
   alarm_description = "Unhealthy targets detected in ${each.key} target group"
 
-  namespace   = "AWS/ApplicationELB"
-  metric_name = "UnHealthyHostCount"
-  statistic   = "Average"
-  period      = 60
-  evaluation_periods = 2
-  threshold   = 0
+  namespace           = "AWS/ApplicationELB"
+  metric_name         = "UnHealthyHostCount"
+  statistic           = "Average"
+  period              = 60
+  evaluation_periods  = 2
+  threshold           = 0
   comparison_operator = "GreaterThanThreshold"
 
   dimensions = {
-    TargetGroup = each.value.name
+    TargetGroup  = each.value.name
     LoadBalancer = var.alb_name
   }
 
@@ -37,12 +37,12 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_errors" {
   alarm_name        = "${var.project_name}-${var.environment}-alb-5xx"
   alarm_description = "ALB is returning 5XX errors"
 
-  namespace   = "AWS/ApplicationELB"
-  metric_name = "HTTPCode_ELB_5XX_Count"
-  statistic   = "Sum"
-  period      = 60
-  evaluation_periods = 2
-  threshold   = 5
+  namespace           = "AWS/ApplicationELB"
+  metric_name         = "HTTPCode_ELB_5XX_Count"
+  statistic           = "Sum"
+  period              = 60
+  evaluation_periods  = 2
+  threshold           = 5
   comparison_operator = "GreaterThanThreshold"
 
   dimensions = {
@@ -65,12 +65,12 @@ resource "aws_cloudwatch_metric_alarm" "alb_latency_p95" {
   alarm_name        = "${var.project_name}-${var.environment}-alb-latency"
   alarm_description = "High ALB response latency (p95)"
 
-  namespace   = "AWS/ApplicationELB"
-  metric_name = "TargetResponseTime"
-  extended_statistic   = "p95"
-  period      = 60
-  evaluation_periods = 3
-  threshold   = 2
+  namespace           = "AWS/ApplicationELB"
+  metric_name         = "TargetResponseTime"
+  extended_statistic  = "p95"
+  period              = 60
+  evaluation_periods  = 3
+  threshold           = 2
   comparison_operator = "GreaterThanThreshold"
 
   dimensions = {
@@ -93,12 +93,12 @@ resource "aws_cloudwatch_metric_alarm" "asg_insufficient_capacity" {
   alarm_name        = "${var.project_name}-${var.environment}-asg-capacity"
   alarm_description = "ASG does not have enough InService instances"
 
-  namespace   = "AWS/AutoScaling"
-  metric_name = "GroupInServiceInstances"
-  statistic   = "Minimum"
-  period      = 60
-  evaluation_periods = 2
-  threshold   = 1
+  namespace           = "AWS/AutoScaling"
+  metric_name         = "GroupInServiceInstances"
+  statistic           = "Minimum"
+  period              = 60
+  evaluation_periods  = 2
+  threshold           = 1
   comparison_operator = "LessThanThreshold"
 
   dimensions = {
@@ -213,10 +213,10 @@ resource "aws_cloudwatch_dashboard" "service_dashboard" {
       # ALB REQUEST COUNT
       # =========================
       {
-        type = "metric"
-        x = 0
-        y = 0
-        width = 12
+        type   = "metric"
+        x      = 0
+        y      = 0
+        width  = 12
         height = 6
 
         properties = {
@@ -239,10 +239,10 @@ resource "aws_cloudwatch_dashboard" "service_dashboard" {
       # ALB 5XX ERRORS
       # =========================
       {
-        type = "metric"
-        x = 12
-        y = 0
-        width = 12
+        type   = "metric"
+        x      = 12
+        y      = 0
+        width  = 12
         height = 6
 
         properties = {
@@ -265,10 +265,10 @@ resource "aws_cloudwatch_dashboard" "service_dashboard" {
       # ALB LATENCY (P95)
       # =========================
       {
-        type = "metric"
-        x = 0
-        y = 6
-        width = 12
+        type   = "metric"
+        x      = 0
+        y      = 6
+        width  = 12
         height = 6
 
         properties = {
@@ -291,10 +291,10 @@ resource "aws_cloudwatch_dashboard" "service_dashboard" {
       # TARGET GROUP HEALTH
       # =========================
       {
-        type = "metric"
-        x = 12
-        y = 6
-        width = 12
+        type   = "metric"
+        x      = 12
+        y      = 6
+        width  = 12
         height = 6
 
         properties = {
@@ -329,10 +329,10 @@ resource "aws_cloudwatch_dashboard" "service_dashboard" {
       # ASG CAPACITY
       # =========================
       {
-        type = "metric"
-        x = 0
-        y = 12
-        width = 24
+        type   = "metric"
+        x      = 0
+        y      = 12
+        width  = 24
         height = 6
 
         properties = {

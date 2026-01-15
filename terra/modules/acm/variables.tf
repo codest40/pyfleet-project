@@ -13,7 +13,7 @@ variable "domain_name" {
 variable "tags" {
   description = "Map of tags to attach to ACM certificates"
   type        = map(string)
-  default     = {
+  default = {
     Project = "pyfleet"
     Owner   = "DevOps"
     Env     = "dev"

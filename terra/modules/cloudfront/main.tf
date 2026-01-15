@@ -1,9 +1,9 @@
 
 resource "aws_cloudwatch_log_group" "cf_logs" {
-  count = var.enable_logging ? 1 : 0
-  name  = "/aws/cloudfront/${var.name}"
+  count             = var.enable_logging ? 1 : 0
+  name              = "/aws/cloudfront/${var.name}"
   retention_in_days = 90
-  tags = merge(var.tags, { Purpose = "CloudFront logs" })
+  tags              = merge(var.tags, { Purpose = "CloudFront logs" })
 }
 
 resource "aws_cloudfront_distribution" "this" {

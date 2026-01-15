@@ -19,25 +19,25 @@ resource "aws_sns_topic_subscription" "email" {
 
 
 resource "aws_budgets_budget" "daily_budget" {
-  name        = "${var.project_name}-daily-budget"
-  budget_type = "COST"
-  time_unit   = "DAILY"
+  name         = "${var.project_name}-daily-budget"
+  budget_type  = "COST"
+  time_unit    = "DAILY"
   limit_amount = var.daily_budget_amount
   limit_unit   = "USD"
 
   # Optional: basic service filter (tags are not allowed)
   cost_types {
-    include_credit            = true
-    include_discount          = true
+    include_credit             = true
+    include_discount           = true
     include_other_subscription = true
-    include_recurring         = true
-    include_refund            = true
-    include_subscription      = true
-    include_support           = true
-    include_tax               = true
-    include_upfront           = true
-    use_amortized             = false
-    use_blended               = false
+    include_recurring          = true
+    include_refund             = true
+    include_subscription       = true
+    include_support            = true
+    include_tax                = true
+    include_upfront            = true
+    use_amortized              = false
+    use_blended                = false
   }
 
   notification {

@@ -27,9 +27,9 @@ resource "aws_wafv2_web_acl" "this" {
   rule {
     name     = "LoginRateLimit"
     priority = 100
-    action { 
-        block {} 
-      }
+    action {
+      block {}
+    }
     statement {
       rate_based_statement {
         limit              = var.login_rate_limit
@@ -47,8 +47,8 @@ resource "aws_wafv2_web_acl" "this" {
   rule {
     name     = "ApiRateLimit"
     priority = 200
-    action { 
-        block {} 
+    action {
+      block {}
     }
     statement {
       rate_based_statement {
@@ -69,8 +69,8 @@ resource "aws_wafv2_web_acl" "this" {
     content {
       name     = "AllowAdminIP-${replace(replace(rule.value, ".", "-"), "/", "_")}"
       priority = 500 + index(var.admin_ip_allowlist, rule.value)
-      action   { 
-          allow {} 
+      action {
+        allow {}
       }
       statement {
         ip_set_reference_statement {
@@ -91,8 +91,8 @@ resource "aws_wafv2_web_acl" "this" {
     content {
       name     = "BlockCountry-${rule.value}"
       priority = 1000 + index(var.blocked_countries, rule.value)
-      action   { 
-          block {} 
+      action {
+        block {}
       }
       statement {
         geo_match_statement {
@@ -110,9 +110,9 @@ resource "aws_wafv2_web_acl" "this" {
 
 # Admin IP Set
 resource "aws_wafv2_ip_set" "admin" {
-  count = length(var.admin_ip_allowlist) > 0 ? 1 : 0
-  name  = "${var.name}-admin-ips"
-  scope = var.scope
+  count              = length(var.admin_ip_allowlist) > 0 ? 1 : 0
+  name               = "${var.name}-admin-ips"
+  scope              = var.scope
   ip_address_version = "IPV4"
   addresses          = var.admin_ip_allowlist
   tags               = var.tags
@@ -122,10 +122,10 @@ resource "aws_wafv2_ip_set" "admin" {
 # CloudWatch logging for WAF
 # -------------------------
 resource "aws_cloudwatch_log_group" "waf_logs" {
-  count = var.enable_logging ? 1 : 0
-  name  = "/waf/${var.name}"
+  count             = var.enable_logging ? 1 : 0
+  name              = "/waf/${var.name}"
   retention_in_days = 90
-  tags  = merge(var.tags, { Purpose = "WAF Logs" })
+  tags              = merge(var.tags, { Purpose = "WAF Logs" })
 }
 
 resource "aws_wafv2_web_acl_logging_configuration" "this" {
