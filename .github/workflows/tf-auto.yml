@@ -93,7 +93,7 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -reconfigure
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Format Check

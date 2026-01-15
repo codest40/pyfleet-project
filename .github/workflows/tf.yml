@@ -125,7 +125,7 @@ jobs:
 
       - name: Terraform Init
         if: ${{ github.event.inputs.tf_action != 'create-backend' && github.event.inputs.tf_action != 'destroy-backend' }}
-        run: terraform init
+        run: terraform init -reconfigure
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Format Check
