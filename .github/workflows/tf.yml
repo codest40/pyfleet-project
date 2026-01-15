@@ -64,15 +64,15 @@ jobs:
           else
             echo "S3 bucket $BUCKET_NAME not found. Creating..."
 
-            if [ "$REGION" = "us-east-1" ]; then
+            if [ "$AWS_REGION" = "us-east-1" ]; then
               aws s3api create-bucket \
                 --bucket "$BUCKET_NAME" \
-                --region "$REGION"
+                --region "$AWS_REGION"
             else
               aws s3api create-bucket \
                 --bucket "$BUCKET_NAME" \
-                --region "$REGION" \
-                --create-bucket-configuration LocationConstraint="$REGION"
+                --region "$AWS_REGION" \
+                --create-bucket-configuration LocationConstraint="$AWS_REGION"
             fi
 
             echo "✅ S3 bucket $BUCKET_NAME created"
