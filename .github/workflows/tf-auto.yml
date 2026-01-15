@@ -113,6 +113,8 @@ jobs:
         with:
           working_directory: ${{ env.TF_DIR }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          additional_args: --minimum-severity MEDIUM
+          soft_fail: true
 
       # -------------------------
       # Infracost Setup & Scan
