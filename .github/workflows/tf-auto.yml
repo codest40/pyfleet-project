@@ -125,7 +125,7 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        run: terraform init -lock-timeout=5m
+        run: terraform init -reconfigure -upgrade -lock-timeout=5m
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Format Check
