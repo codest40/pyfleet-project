@@ -65,8 +65,8 @@ jobs:
             echo "⚠️ S3 bucket $BUCKET_NAME not found. Creating..."
             aws s3api create-bucket \
               --bucket "$BUCKET_NAME" \
-              --region "AWS_REGION" \
-              --create-bucket-configuration LocationConstraint="AWS_REGION"
+              --region ${{ env.AWS_REGION }} \
+              --create-bucket-configuration LocationConstraint=${{ env.AWS_REGION }}
             echo "✅ S3 bucket $BUCKET_NAME created"
           fi
 
