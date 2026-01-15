@@ -1,2 +1,0 @@
-
-# For Docker/app cicd
