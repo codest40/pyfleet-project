@@ -82,6 +82,7 @@ module "waf_alb" {
   admin_ip_allowlist = ["203.0.113.10/32"]
   blocked_countries  = ["CN", "RU"]
   enable_logging     = false
+  logs_kms_arn       = module.kms.logs_kms_key_arn
   tags               = var.tags
 }
 
