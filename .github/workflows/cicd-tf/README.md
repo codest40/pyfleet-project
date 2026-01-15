@@ -7,8 +7,8 @@ It uses **OIDC authentication** to securely access AWS without storing long-live
 
 ## Features
 
-- **Environment Support:**  
-  - `dev` and `prod` only.  
+- **Environment Support:** 
+  - `dev` and `prod` only. 
   - Environment selection is fully managed via workflow inputs.
   
 - **Terraform Automation:**  
