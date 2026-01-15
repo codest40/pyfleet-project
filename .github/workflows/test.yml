@@ -1,0 +1,40 @@
+name: Troubleshooting Secrets Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check PYFLEET_ARN secret
+        run: |
+          if [ -z "${{ secrets.PYFLEET_ARN }}" ]; then
+            echo "❌ PYFLEET_ARN not found!"
+            exit 1
+          else
+            echo "✅ PYFLEET_ARN found"
+          fi
+
+      - name: Check INFRACOST_API_KEY secret
+        run: |
+          if [ -z "${{ secrets.INFRACOST_API_KEY }}" ]; then
+            echo "❌ INFRACOST_API_KEY not found!"
+            exit 1
+          else
+            echo "✅ INFRACOST_API_KEY found"
+          fi
+
+      - name: Test OIDC Assume Role (dry-run)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.PYFLEET_ARN }}-dev
+          aws-region: us-east-1
+
+      - name: Test AWS CLI call
+        run: |
+          echo "Trying to list S3 buckets..."
+          aws s3 ls || echo "⚠️ Could not list buckets. Check IAM role permissions."
