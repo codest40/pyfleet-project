@@ -193,4 +193,23 @@ jobs:
           aws s3api delete-bucket --bucket "$BUCKET_NAME" || echo "S3 bucket $BUCKET_NAME does not exist"
 
           echo "✅ Terraform backend destroyed"
+
+          # -------------------------
+          # Confirm backend deletion
+          # -------------------------
+
+          # Check DynamoDB table
+          if ! aws dynamodb describe-table --table-name "$LOCK_TABLE" --region "$REGION" >/dev/null 2>&1; then
+            echo "✅ DynamoDB table $LOCK_TABLE confirmed deleted"
+          else
+            echo "❌ DynamoDB table $LOCK_TABLE still exists"
+          fi
+
+          # Check S3 bucket
+          if ! aws s3 ls "s3://$BUCKET_NAME" >/dev/null 2>&1; then
+            echo "✅ S3 bucket $BUCKET_NAME confirmed deleted"
+          else
+            echo "❌ S3 bucket $BUCKET_NAME still exists or not empty"
+          fi
+
         shell: bash
