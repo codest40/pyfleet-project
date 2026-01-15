@@ -108,10 +108,6 @@ resource "aws_wafv2_web_acl" "this" {
   }
 }
 
-# Customer Managed Key
-resource "aws_cloudwatch_log_group" "waf_logs" {
-  kms_key_id = var.logs_kms_arn
-}
 
 # Admin IP Set
 resource "aws_wafv2_ip_set" "admin" {
@@ -130,7 +126,7 @@ resource "aws_cloudwatch_log_group" "waf_logs" {
   count             = var.enable_logging ? 1 : 0
   name              = "/waf/${var.name}"
   retention_in_days = 90
-  kms_key_id        = aws_kms_key.logs.arn
+  kms_key_id = var.logs_kms_arn
   tags              = merge(var.tags, { Purpose = "WAF Logs" })
 }
 

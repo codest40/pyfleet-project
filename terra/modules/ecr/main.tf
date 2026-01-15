@@ -7,7 +7,7 @@ resource "aws_ecr_repository" "app_repo" {
 
   encryption_configuration {
     encryption_type = "KMS"
-    kms_key         = aws_kms_key.ecr.arn
+    kms_key         = var.kms_key_arn
   }
 
   tags = {
@@ -15,10 +15,6 @@ resource "aws_ecr_repository" "app_repo" {
   }
 }
 
-resource "aws_ecr_repository" "app_repo" {
-  name    = var.repo_name
-  kms_key = var.kms_key_arn
-}
 
 # -------------------------
 # ECR Lifecycle Policy
