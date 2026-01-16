@@ -172,6 +172,7 @@ jobs:
 
           # If lock_free, proceed
           if [[ "$state_free" != "true" ]]; then
+            echo "Result State says: $state_free"
             echo "❌ Terraform state locked. Exiting."
             exit 1
           fi
