@@ -141,12 +141,6 @@ jobs:
           terraform validate
         working-directory: ${{ env.TF_DIR }}
 
-      # -------------------------
-      # Wait for State Lock (Reusable Script)
-      # -------------------------
-      - name: Wait for Terraform State Lock
-        run: .github/scripts/wait-for-lock.sh
-        shell: bash
 
       # -------------------------
       # Determine Active Color (Prod only)
@@ -165,6 +159,7 @@ jobs:
           echo "Promoting to ${{ env.next_color }}"
         working-directory: ${{ env.TF_DIR }}
 
+
       # -------------------------
       # Terraform Plan
       # -------------------------
@@ -177,7 +172,7 @@ jobs:
 
           # If lock_free, proceed
           if [[ "$state_free" != "true" ]]; then
-            echo "Terraform state locked. Exiting."
+            echo "❌ Terraform state locked. Exiting."
             exit 1
           fi
 
