@@ -168,7 +168,7 @@ jobs:
         run: |
           set -e
           # Wait for lock
-          source $GITHUB_WORKSPACE/.github/scripts/wait-for-lock.sh
+          bash $GITHUB_WORKSPACE/.github/scripts/wait-for-lock.sh
 
           # If lock_free, proceed
           if [[ "$state_free" != "true" ]]; then
