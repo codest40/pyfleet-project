@@ -217,9 +217,9 @@ jobs:
         if: ${{ github.event.inputs.tf_action == 'apply' || github.event.inputs.tf_action == 'promote' }}
         run: |
           if [[ "${{ github.event.inputs.tf_action }}" == "promote" ]]; then
-            terraform apply -input=false -lock-timeout=5m -auto-approve -var="active_color=${{ env.next_color }}"
+            terraform apply -input=false -lock-timeout=5m -auto-approve -var="active_color=${{ env.next_color }}" -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
           else
-            terraform apply -input=false -lock-timeout=5m -auto-approve -var="active_color=blue"
+            terraform apply -input=false -lock-timeout=5m -auto-approve -var="active_color=blue" -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
           fi
         working-directory: ${{ env.TF_DIR }}
 
