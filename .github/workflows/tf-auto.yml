@@ -204,9 +204,9 @@ jobs:
         if: ${{ github.event.inputs.tf_action == 'plan' || github.event.inputs.tf_action == 'promote' }}
         run: |
           if [[ "${{ github.event.inputs.tf_action }}" == "promote" ]]; then
-            terraform plan -input=false -lock-timeout=5m -var="active_color=${{ env.next_color }}"  -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
+            terraform plan -input=false -lock-timeout=2m -var="active_color=${{ env.next_color }}"  -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
           else
-            terraform plan -input=false -lock-timeout=5m -var="active_color=blue"  -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
+            terraform plan -input=false -lock-timeout=2m -var="active_color=blue"  -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
           fi
         working-directory: ${{ env.TF_DIR }}
 
