@@ -65,7 +65,7 @@ jobs:
 
         run: |
           set -o pipefail
-          EXIT_CODE=$(terraform plan -detailed-exitcode -input=false -lock-timeout=1m -refresh=false; echo $?)
+          EXIT_CODE=$(terraform plan -detailed-exitcode -input=false -var='alert_emails=${{ secrets.ALERT_EMAILS }}' -lock-timeout=1m -refresh=false; echo $?)
           echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_ENV
         working-directory: ${{ env.TF_DIR }}
 
