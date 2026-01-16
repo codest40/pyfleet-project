@@ -198,7 +198,7 @@ jobs:
       # -------------------------
       - name: Terraform Destroy
         if: ${{ github.event.inputs.tf_action == 'destroy' }}
-        run: terraform destroy -input=false -lock-timeout=5m -auto-approve
+        run: terraform destroy -input=false -lock-timeout=5m -auto-approve -var="active_color=$ACTIVE_COLOR" -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
         working-directory: ${{ env.TF_DIR }}
 
       # -------------------------
