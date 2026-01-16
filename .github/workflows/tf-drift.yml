@@ -69,7 +69,7 @@ jobs:
             -input=false \
             -lock=false \
             -refresh=true
-            -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
+            -var="alert_emails=[\"${{ secrets.ALERT_EMAILS }}\"]"
           EXIT_CODE=$?
           set -e
           echo "EXIT_CODE=$EXIT_CODE" >> "$GITHUB_ENV"
