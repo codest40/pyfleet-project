@@ -1,0 +1,74 @@
+name: Check Terraform State Lock
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Target environment"
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prod
+  push:
+    branches:
+      - main
+      - dev
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  TF_LOCK_TABLE: pyfleet-lock-tf
+  TF_STATE_PATH: pyfleet/terraform.tfstate
+
+jobs:
+  check_lock:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.PYFLEET_ARN }}-${{ github.event.inputs.env || 'dev' }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install jq (for parsing JSON)
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Check Terraform State Lock
+        id: check_lock
+        run: |
+          LOCK=$(aws dynamodb get-item \
+            --table-name "$TF_LOCK_TABLE" \
+            --key "{\"LockID\":{\"S\":\"$TF_STATE_PATH\"}}" \
+            --query "Item" \
+            --output json 2>/dev/null)
+
+          if [[ -z "$LOCK" || "$LOCK" == "null" ]]; then
+            echo "state_free=true" >> $GITHUB_ENV
+            echo "✅ Terraform state is free"
+          else
+            WHO=$(echo "$LOCK" | jq -r '.Info.S // "unknown"')
+            CREATED=$(echo "$LOCK" | jq -r '.Created.S // "unknown"')
+            echo "state_free=false" >> $GITHUB_ENV
+            echo "⚠️ Terraform state is locked!"
+            echo "   Locked by: $WHO"
+            echo "   Created at: $CREATED"
+          fi
+        shell: bash
+
+      - name: Print Result
+        run: |
+          if [[ "$state_free" == "true" ]]; then
+            echo "✅ You can safely run Terraform plan/apply."
+          else
+            echo "⚠️ Terraform state is currently locked. Please wait until it is free."
+            exit 1
+          fi

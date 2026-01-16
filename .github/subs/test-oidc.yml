@@ -1,0 +1,76 @@
+name: OIDC & Secrets + AWS Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      tf_env:
+        description: 'Target environment to test'
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: us-east-1
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # -------------------------
+      # Verify GitHub Secrets
+      # -------------------------
+      - name: Verify Secrets
+        run: |
+          if [ -z "${{ secrets.PYFLEET_ARN }}" ]; then
+            echo "❌ PYFLEET_ARN not found!"
+            exit 1
+          else
+            echo "✅ PYFLEET_ARN found"
+          fi
+
+          if [ -z "${{ secrets.INFRACOST_API_KEY }}" ]; then
+            echo "❌ INFRACOST_API_KEY not found!"
+            exit 1
+          else
+            echo "✅ INFRACOST_API_KEY found"
+          fi
+
+      # -------------------------
+      # Assume AWS Role via OIDC
+      # -------------------------
+      - name: AWS OIDC Auth
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.PYFLEET_ARN }}-${{ github.event.inputs.tf_env }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # -------------------------
+      # Test AWS Access
+      # -------------------------
+      - name: List S3 Buckets
+        run: |
+          echo "Listing S3 buckets to test AWS access for ${{ github.event.inputs.tf_env }}:"
+          aws s3 ls
+
+      # -------------------------
+      # Show OIDC token
+      # -------------------------
+      - name: Request OIDC Token
+        run: |
+          echo "Requesting OIDC token..."
+          curl -s -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+               "$ACTIONS_ID_TOKEN_REQUEST_URL" | jq .
+        env:
+          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ github.event.inputs.ACTIONS_ID_TOKEN_REQUEST_URL || '' }}
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ github.event.inputs.ACTIONS_ID_TOKEN_REQUEST_TOKEN || '' }}

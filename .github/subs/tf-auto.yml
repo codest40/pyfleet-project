@@ -197,16 +197,11 @@ jobs:
           echo "Promoting to ${{ env.next_color }}"
         working-directory: ${{ env.TF_DIR }}
 
-
       # -------------------------
       # Terraform Plan
       # -------------------------
-      - name: Wait for Terraform State Lock
-        run: .github/scripts/wait-for-lock.sh
-        shell: bash
-
       - name: Terraform Plan
-        if: ${{ github.event.inputs.tf_action == 'plan' || github.event.inputs.tf_action == 'promote' }} && env.state_free == 'true'
+        if: ${{ github.event.inputs.tf_action == 'plan' || github.event.inputs.tf_action == 'promote' }}
         run: |
           if [[ "${{ github.event.inputs.tf_action }}" == "promote" ]]; then
             terraform plan -input=false -lock-timeout=2m -var="active_color=${{ env.next_color }}"  -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
@@ -218,12 +213,8 @@ jobs:
       # -------------------------
       # Terraform Apply
       # -------------------------
-      - name: Wait for Terraform State Lock
-        run: .github/scripts/wait-for-lock.sh
-        shell: bash
-
       - name: Terraform Apply
-        if: ${{ github.event.inputs.tf_action == 'apply' || github.event.inputs.tf_action == 'promote' }}  && env.state_free == 'true'
+        if: ${{ github.event.inputs.tf_action == 'apply' || github.event.inputs.tf_action == 'promote' }}
         run: |
           if [[ "${{ github.event.inputs.tf_action }}" == "promote" ]]; then
             terraform apply -input=false -lock-timeout=5m -auto-approve -var="active_color=${{ env.next_color }}" -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
