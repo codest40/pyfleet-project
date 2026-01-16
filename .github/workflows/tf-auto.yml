@@ -173,7 +173,7 @@ jobs:
         run: |
           set -e
           # Wait for lock
-          source .github/scripts/wait-for-lock.sh
+          source $GITHUB_WORKSPACE/.github/scripts/wait-for-lock.sh
 
           # If lock_free, proceed
           if [[ "$state_free" != "true" ]]; then
