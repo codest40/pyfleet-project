@@ -53,6 +53,11 @@ jobs:
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
           TF_VAR_key: ${{ secrets.KEY }}
           TF_VAR_my_email: ${{ secrets.MY_EMAIL }}
+          TF_VAR_duckdns_token: ${{ secrets.DUCKDNS_TOKEN }}
+          TF_VAR_duckdns_domain: ${{ secrets.DUCKDNS_DOMAIN }}
+          TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
+          TF_VAR_key: ${{ secrets.KEY }}
+          TF_VAR_my_email: ${{ secrets.MY_EMAIL }}
           TF_VAR_my_ip_cidr: ${{ secrets.MY_IP_CIDR }}
           TF_VAR_alert_emails: "[\"${{ secrets.ALERT_EMAILS }}\"]"
           TF_VAR_budget_amount: ${{ secrets.BUDGET_AMOUNT }}
@@ -62,7 +67,6 @@ jobs:
           TF_VAR_us_east_1_cert_arn: ${{ secrets.US_EAST_1_CERT_ARN }}
           TF_VAR_env: ${{ github.event.inputs.tf_env }}
           TF_VAR_active_color: "blue"
-
         run: |
           set +e
           terraform plan \
@@ -71,11 +75,12 @@ jobs:
             -lock-timeout=1m \
             -refresh=false \
             -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
-         EXIT_CODE=$?
-         set -e
-
-         echo "EXIT_CODE=$EXIT_CODE" >> "$GITHUB_ENV"
+          EXIT_CODE=$?
+          set -e
+          echo "EXIT_CODE=$EXIT_CODE" >> "$GITHUB_ENV"
         working-directory: ${{ env.TF_DIR }}
+
+
 
       - name: Check for Drift
         if: env.EXIT_CODE == '2'
