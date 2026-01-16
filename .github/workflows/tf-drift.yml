@@ -16,7 +16,7 @@ env:
   TF_DIR: ./terra
 
 concurrency:
-  group: terraform-drift-${{ matrix.env }}
+  group: terraform-drift-${{ github.event.inputs.env || 'manual' }}
   cancel-in-progress: false
 
 jobs:
