@@ -37,6 +37,7 @@ env:
   TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
   TF_VAR_key: ${{ secrets.KEY }}
   TF_VAR_my_email: ${{ secrets.MY_EMAIL }}
+  TF_VAR_my_ip_cidr: ${{ secrets.MY_IP_CIDR }}
   TF_VAR_alert_emails: "[\"${{ secrets.ALERT_EMAILS }}\"]"
   TF_VAR_budget_amount: ${{ secrets.BUDGET_AMOUNT }}
   TF_VAR_bastion_ami: ${{ secrets.BASTION_AMI }}
