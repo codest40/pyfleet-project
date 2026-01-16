@@ -67,9 +67,9 @@ jobs:
           terraform plan \
             -detailed-exitcode \
             -input=false \
-            -lock=false \
-            -refresh=true \
             -var='alert_emails=${{ secrets.ALERT_EMAILS }}' \
+            -lock=false \
+            -refresh=true 
           EXIT_CODE=$?
           set -e
           echo "EXIT_CODE=$EXIT_CODE" >> "$GITHUB_ENV"
