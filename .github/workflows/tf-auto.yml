@@ -168,11 +168,11 @@ jobs:
         run: |
           set -e
           # Wait for lock
-          bash $GITHUB_WORKSPACE/.github/scripts/wait-for-lock.sh
+          source $GITHUB_WORKSPACE/.github/scripts/wait-for-lock.sh
+          echo "Result State says: $state_free"
 
           # If lock_free, proceed
           if [[ "$state_free" != "true" ]]; then
-            echo "Result State says: $state_free"
             echo "❌ Terraform state locked. Exiting."
             exit 1
           fi

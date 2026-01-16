@@ -20,8 +20,8 @@ while true; do
 
   if [[ -z "$LOCK" || "$LOCK" == "null" ]]; then
     echo "✅ Terraform state is free"
-    echo "state_free=true" >> $GITHUB_ENV
-    break
+    export state_free="true"
+    return 0
   else
     WHO=$(echo "$LOCK" | jq -r '.Info.S // "unknown"')
     CREATED=$(echo "$LOCK" | jq -r '.Created.S // "unknown"')
@@ -31,8 +31,8 @@ while true; do
 
     if (( ELAPSED >= MAX_WAIT )); then
       echo "❌ Timeout reached. Terraform state still locked. Exiting."
-      echo "state_free=false" >> $GITHUB_ENV
-      exit 1
+      export state_free="false"
+      return 1
     fi
 
     echo "Waiting $SLEEP_INTERVAL seconds before retrying..."
