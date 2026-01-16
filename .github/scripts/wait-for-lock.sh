@@ -3,14 +3,16 @@ set -e
 
 LOCK_TABLE="${1:-pyfleet-lock-tf}"
 STATE_PATH="${2:-pyfleet/terraform.tfstate}"
-MAX_WAIT="${3:-300}"       # seconds
-SLEEP_INTERVAL="${4:-10}"  # seconds
+AWS_REGION="${3:-us-east-1}"
+MAX_WAIT="${4:-300}"       # seconds
+SLEEP_INTERVAL="${5:-10}"  # seconds
 
 echo "Checking if Terraform state is locked..."
 
 ELAPSED=0
 while true; do
   LOCK=$(aws dynamodb get-item \
+    --region "$AWS_REGION" \
     --table-name "$LOCK_TABLE" \
     --key "{\"LockID\":{\"S\":\"$STATE_PATH\"}}" \
     --query "Item" \

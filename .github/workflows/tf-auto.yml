@@ -171,9 +171,20 @@ jobs:
       - name: Terraform Plan
         if: ${{ github.event.inputs.tf_action == 'plan' || github.event.inputs.tf_action == 'promote' }}
         run: |
+          set -e
+          # Wait for lock
+          .github/scripts/wait-for-lock.sh
+
+          # If lock_free, proceed
+          if [[ "$state_free" != "true" ]]; then
+            echo "Terraform state locked. Exiting."
+            exit 1
+          fi
+
           ACTIVE_COLOR="blue"
           [[ "${{ github.event.inputs.tf_action }}" == "promote" ]] && ACTIVE_COLOR="${{ env.next_color }}"
           terraform plan -input=false -lock-timeout=5m -var="active_color=$ACTIVE_COLOR" -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
+        shell: bash
         working-directory: ${{ env.TF_DIR }}
 
       # -------------------------
