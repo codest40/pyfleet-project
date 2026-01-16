@@ -42,9 +42,6 @@ variable "enable_logging" {
   default     = true
 }
 
-variable "logs_kms_arn" {
-  type = string
-}
 
 variable "tags" {
   type        = map(string)
