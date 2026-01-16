@@ -68,7 +68,7 @@ jobs:
             -detailed-exitcode \
             -input=false \
             -var='alert_emails=${{ secrets.ALERT_EMAILS }}' \
-#            -lock=false \
+            # -lock=false \
             -refresh=true
           EXIT_CODE=$?
           set -e
