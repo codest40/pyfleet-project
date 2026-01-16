@@ -2,7 +2,7 @@ name: Terraform Drift Detection
 
 on:
   schedule:
-    - cron: "0 2 * * *"
+    - cron: "0 1 * * *"
   workflow_dispatch:
 
 permissions:
@@ -69,10 +69,11 @@ jobs:
             -input=false \
             -var='alert_emails=${{ secrets.ALERT_EMAILS }}' \
             -lock=false \
-            -refresh=true 
+            -refresh=true
           EXIT_CODE=$?
           set -e
           echo "EXIT_CODE=$EXIT_CODE" >> "$GITHUB_ENV"
+          trap 'terraform force-unlock -force "$(terraform show -json | jq -r ".terraform_version")"' EXIT
         working-directory: ${{ env.TF_DIR }}
 
       - name: Check for Drift
