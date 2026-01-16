@@ -1,0 +1,21 @@
+- name: Check Terraform State Lock
+  id: check_lock
+  run: |
+    LOCK=$(aws dynamodb get-item \
+      --table-name "pyfleet-lock-tf" \
+      --key '{"LockID":{"S":"pyfleet/terraform.tfstate"}}' \
+      --query "Item" \
+      --output json 2>/dev/null)
+
+    if [[ -z "$LOCK" || "$LOCK" == "null" ]]; then
+      echo "state_free=true" >> $GITHUB_ENV
+      echo "✅ Terraform state is free"
+    else
+      WHO=$(echo "$LOCK" | jq -r '.Info.S // "unknown"')
+      CREATED=$(echo "$LOCK" | jq -r '.Created.S // "unknown"')
+      echo "state_free=false" >> $GITHUB_ENV
+      echo "⚠️ Terraform state is locked!"
+      echo "   Locked by: $WHO"
+      echo "   Created at: $CREATED"
+    fi
+  shell: bash
