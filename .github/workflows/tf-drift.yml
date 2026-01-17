@@ -14,6 +14,8 @@ env:
   AWS_REGION: us-east-1
   TF_VERSION: 1.6.6
   TF_DIR: ./terra
+  BUCKET_NAME: pyfleet-backend-tf
+  LOCK_TABLE: pyfleet-lock-tf
 
 jobs:
   drift:
@@ -36,6 +38,10 @@ jobs:
           role-to-assume: ${{ secrets.PYFLEET_ARN }}-${{ matrix.env }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Check Terraform Backend Exists
+        run: |
+          $GITHUB_WORKSPACE/scripts/check-backend.sh ${{ env.BUCKET_NAME }} ${{ env.LOCK_TABLE }} ${{ env.AWS_REGION }} || true
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -46,6 +52,7 @@ jobs:
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Plan (Drift Detection)
+        if: ${{ success() && github.run_attempt == 1 }}
         id: plan
         env:
           TF_VAR_env: ${{ matrix.env }}
