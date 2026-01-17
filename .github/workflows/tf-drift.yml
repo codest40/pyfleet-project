@@ -42,12 +42,6 @@ jobs:
       - name: Check Terraform Backend Exists
         run: |
           $GITHUB_WORKSPACE/.github/scripts/check-backend.sh ${{ env.BUCKET_NAME }} ${{ env.LOCK_TABLE }} ${{ env.AWS_REGION }}
-          EXIT_CODE=$?
-          echo "Exit code: $EXIT_CODE"
-          if [[ "$EXIT_CODE" == 2 ]]; then
-            echo "Backend Doesnt Exist!! Stopping Pipeline"
-            exit 0
-          fi
         shell: bash
 
       - name: Setup Terraform
