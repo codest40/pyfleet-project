@@ -6,6 +6,6 @@ terraform {
     region         = "us-east-1"
     dynamodb_table = "pyfleet-lock-tf"
     encrypt        = true
-    #    profile        = admin-codest
+    #profile        = my-profile-name
   }
 }
