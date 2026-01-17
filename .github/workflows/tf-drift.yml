@@ -52,18 +52,18 @@ jobs:
           exit 0
 
       - name: Setup Terraform Only If Backend Exists
-        if: steps.backend.outcome == 'failure'
+        if: env.backend_exists == 'true'
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init Only If Backend Exists
-        if: steps.backend.outcome == 'failure'
+        if: env.backend_exists == 'true'
         run: terraform init -input=false -reconfigure
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Plan (Drift Detection)
-        if: ${{ success() && github.run_attempt == 1 }} && steps.backend.outcome == 'failure'
+        if: env.backend_exists == 'true'
         id: plan
         env:
           TF_VAR_env: ${{ matrix.env }}
