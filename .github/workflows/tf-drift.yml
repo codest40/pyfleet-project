@@ -41,7 +41,7 @@ jobs:
 
       - name: Check Terraform Backend Exists
         run: |
-          ./scripts/check-backend.sh ${{ env.BUCKET_NAME }} ${{ env.LOCK_TABLE }} ${{ env.AWS_REGION }} || true
+          $GITHUB_WORKSPACE/.github/scripts/check-backend.sh ${{ env.BUCKET_NAME }} ${{ env.LOCK_TABLE }} ${{ env.AWS_REGION }} || true
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
