@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Exit 2 if backend missing, 0 if exists
-# To distinguise pipeline failure from state existende
+# To distinguise pipeline failure from state non-existende
 
 BUCKET_NAME="$1"
 LOCK_TABLE="$2"

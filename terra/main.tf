@@ -1,5 +1,5 @@
 # =======================================================
-# ROOT MODULE REFACTORED: pyfleet v2 (ALB + WAF + CloudFront)
+# ROOT MODULE
 # =======================================================
 
 provider "aws" {

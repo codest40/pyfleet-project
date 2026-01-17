@@ -1,2 +1,0 @@
-
-# Talks about ecr part

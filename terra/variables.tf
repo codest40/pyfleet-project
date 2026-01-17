@@ -91,7 +91,7 @@ variable "bastion_instance_type" {
 }
 
 variable "my_ip_cidr" {
-  description = "Your current public IP in CIDR format, e.g., 203.0.113.25/32"
+  description = "Current public IP in CIDR format"
   type        = string
 }
 

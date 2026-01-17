@@ -1,4 +1,4 @@
-name: Check Terraform State Lock
+name: Check Terraform State Lock (For Test)
 
 on:
   workflow_dispatch:

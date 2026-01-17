@@ -22,17 +22,17 @@
 
 5. Attach policy: AdministratorAccess 
    (or custom policy limited to project resources e.g ec2, alb only ) 
-6. Role name: e.g., GitHubTerraformRole-dev / GitHubTerraformRole-prod
+6. Role name: e.g., MyGithubRole-dev / YourAwsRole-prod
 7. Copy the Role ARN
 
 # ------------------------------------------------------------
 #  3. ADD GITHUB SECRETS
 # ------------------------------------------------------------
 1. Go to GitHub → Settings → Secrets → Actions
-2. Add the following secrets:
+2. Add the following secrets:  e.gs
 
-   - PYFLEET_ARN = arn:aws:iam::<account_id>:role/GitHubTerraformRole
-   - INFRACOST_API_KEY = <your Infracost API key>
+   - PYFLEET_ARN = arn:aws:iam::<account_id>:role/MyGithubAwsRole
+   - INFRACOST_API_KEY = <my Infracost API key>
 
 # ------------------------------------------------------------
 #  4. USE IN GITHUB ACTIONS WORKFLOW

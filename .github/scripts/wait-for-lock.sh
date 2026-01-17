@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# To Ensure lock is free before apply, destroy else things may hang forever
+
 set -e
 
 LOCK_TABLE="${1:-pyfleet-lock-tf}"
