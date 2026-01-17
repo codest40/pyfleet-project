@@ -221,7 +221,7 @@ jobs:
             terraform plan -var="active_color=${{ env.next_color }}"
           else
             echo "Planning standard deploy (blue)"
-            terraform plan -var="active_color=blue" -input=false
+            terraform plan -var="active_color=blue" -var='alert_emails=${{ secrets.ALERT_EMAILS }}' -input=false -lock-timeout=5m
           fi
         working-directory: ${{ env.TF_DIR }}
 
@@ -233,10 +233,10 @@ jobs:
         run: |
           if [[ "${{ github.event.inputs.tf_action }}" == "promote" ]]; then
             echo "Planning promotion to New Site: ${{ env.next_color }}"
-            terraform apply -auto-approve -var="active_color=${{ env.next_color }}"
+            terraform apply -auto-approve -var="active_color=${{ env.next_color }}" -var='alert_emails=${{ secrets.ALERT_EMAILS }}' -input=false
           else
             echo "Planning standard deploy (blue)"
-            terraform apply -auto-approve -var="active_color=blue"
+            terraform apply -auto-approve -var="active_color=blue" -var='alert_emails=${{ secrets.ALERT_EMAILS }}' -input=false
           fi
         working-directory: ${{ env.TF_DIR }}
 
@@ -245,6 +245,6 @@ jobs:
       # -------------------------
       - name: Terraform Destroy
         if: ${{ github.event.inputs.tf_action == 'destroy' }}
-        run: terraform destroy -auto-approve
+        run: terraform destroy -auto-approve -input=false -var="active_color=$ACTIVE_COLOR" -var='alert_emails=${{ secrets.ALERT_EMAILS }}'
         working-directory: ${{ env.TF_DIR }}
 
