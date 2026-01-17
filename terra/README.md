@@ -163,7 +163,7 @@ modular, reusable, and fully automated with Terraform, providing:
   - replica_count         : number
   - tags                  : map(string)
 
-  # (other modules inputs remain as previously documented)
+  # (Each Module has its README documented)
 
 --------------------------------------------------------------------------------
 ## Outputs:
