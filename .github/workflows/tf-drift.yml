@@ -51,7 +51,8 @@ jobs:
           echo "Backend missing — skipping Terraform drift workflow."
           exit 0
 
-      - name: Setup Terraform
+      - name: Setup Terraform Only If Backend Exists
+        if: steps.backend.outcome == 'failure'
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
@@ -62,7 +63,7 @@ jobs:
         working-directory: ${{ env.TF_DIR }}
 
       - name: Terraform Plan (Drift Detection)
-        if: ${{ success() && github.run_attempt == 1 }}
+        if: ${{ success() && github.run_attempt == 1 }} && steps.backend.outcome == 'failure'
         id: plan
         env:
           TF_VAR_env: ${{ matrix.env }}
