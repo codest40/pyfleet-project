@@ -40,16 +40,24 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Check Terraform Backend Exists
+        id: backend
         run: |
           $GITHUB_WORKSPACE/.github/scripts/check-backend.sh ${{ env.BUCKET_NAME }} ${{ env.LOCK_TABLE }} ${{ env.AWS_REGION }}
-        shell: bash
+        continue-on-error: true
+
+      - name: Skip Drift Check If Backend Missing
+        if: steps.backend.outcome == 'success' && steps.backend.conclusion == 'success'
+        run: |
+          echo "Backend missing — skipping Terraform drift workflow."
+          exit 0
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Terraform Init
+      - name: Terraform Init Only If Backend Exists
+        if: steps.backend.outcome == 'failure'
         run: terraform init -input=false -reconfigure
         working-directory: ${{ env.TF_DIR }}
 
