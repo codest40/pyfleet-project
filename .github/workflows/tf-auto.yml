@@ -92,7 +92,7 @@ jobs:
 
           # Check and create S3 bucket if missing
           if ! aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
-            echo "🛠 Creating S3 bucket..."
+            echo " Creating S3 bucket..."
             if [ "$AWS_REGION" = "us-east-1" ]; then
               aws s3api create-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION"
             else
@@ -106,7 +106,7 @@ jobs:
 
           # Check and create DynamoDB lock table if missing
           if ! aws dynamodb describe-table --table-name "$LOCK_TABLE" 2>/dev/null; then
-            echo "🛠 Creating DynamoDB lock table..."
+            echo " Creating DynamoDB lock table..."
             aws dynamodb create-table \
               --table-name "$LOCK_TABLE" \
               --attribute-definitions AttributeName=LockID,AttributeType=S \
