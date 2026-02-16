@@ -2,8 +2,8 @@ name: Terraform Drift Detection
 
 on:
 #  push: {}
-  schedule:
-    - cron: "0 1 * * *"
+#  schedule:
+#    - cron: "0 1 * * *"
   workflow_dispatch:
 
 permissions:
