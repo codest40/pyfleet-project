@@ -4,7 +4,7 @@
 # NOTE:
 # DuckDNS does not have an official Terraform provider.
 # We use a null_resource with local-exec for learning purposes.
-# This runs on YOUR local machine, not inside AWS.
+# This runs on local machine, not inside AWS.
 # -------------------------
 
 # -------------------------
