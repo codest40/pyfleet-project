@@ -27,23 +27,25 @@ manage storage efficiently.
 
 # ------------------------------------------------------------
 #  INPUTS
-# ------------------------------------------------------------
+#
+``` ------------------------------------------------------------
 +-----------+-------------------------+------------+
 | Variable  | Description             | Default    |
 +-----------+-------------------------+------------+
 | repo_name | Name of the ECR repo    | ecr-pyfleet|
 | region    | AWS region for repo     | us-east-1  |
 +-----------+-------------------------+------------+
-
+```
 # ------------------------------------------------------------
 #  OUTPUTS
-# ------------------------------------------------------------
+#
+``` ------------------------------------------------------------
 +---------+-------------------------------------------------+
 | Output  | Description                                     |
 +---------+-------------------------------------------------+
 | repo_url| Repository URL for pushing Docker images       |
 +---------+-------------------------------------------------+
-
+```
 # ------------------------------------------------------------
 #  HOW IT WORKS
 # ------------------------------------------------------------
@@ -54,6 +56,6 @@ manage storage efficiently.
 # ------------------------------------------------------------
 #  USAGE NOTES
 # ------------------------------------------------------------
-- Use `repo_url` output to tag and push Docker images from CI/CD pipelines
+- Used `repo_url` output to tag and push Docker images from CI/CD pipelines
 - Lifecycle policy ensures storage remains under control automatically
 - Ideal for containerized applications requiring a private, versioned image registry
