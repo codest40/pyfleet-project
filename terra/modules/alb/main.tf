@@ -1,5 +1,5 @@
 # =======================================================
-# ALB MODULE v2 - PYFLEET (CloudFront-ready)
+# ALB MODULE - PYFLEET (CloudFront-ready)
 # =======================================================
 # - Security Group (CloudFront-aware)
 # - Application Load Balancer
