@@ -83,7 +83,7 @@ Results in:
 # ------------------------------------------------------------
 
 ## Availability Zone Mapping
-
+```
 The module uses a structured `azs` input:
 
 azs = [
@@ -101,7 +101,7 @@ This enables:
 - for_each-based resource creation
 - Easy scaling to additional AZs
 
-```
+
 ## Traffic Flow
 
 ### Inbound Traffic
