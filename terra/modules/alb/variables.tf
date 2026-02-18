@@ -1,5 +1,5 @@
 # =======================================================
-# ALB MODULE v2 VARIABLES - PYFLEET
+# ALB MODULE VARIABLES - PYFLEET
 # =======================================================
 
 variable "my_ip" {
@@ -8,7 +8,7 @@ variable "my_ip" {
   default     = ["105.117.11.54/32"]
 }
 
-# VPC ID where ALB will be deployed
+# VPC ID 
 variable "vpc_id" {
   description = "ID of the VPC where the ALB will be created"
   type        = string
