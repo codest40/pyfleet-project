@@ -1,5 +1,5 @@
 # =======================================================
-# NETWORK MODULE v2 - PYFLEET
+# NETWORK MODULE - PYFLEET
 # =======================================================
 # - VPC
 # - 2 Public Subnets for ALB
