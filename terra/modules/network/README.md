@@ -29,7 +29,7 @@ flexible through structured inputs.
 ## Subnet Architecture (per Availability Zone)
 
 For each configured AZ, the module creates four subnets:
-
+```
 +-------------------+--------------------------------------+
 | Subnet Type       | Purpose                              |
 +-------------------+--------------------------------------+
@@ -38,7 +38,7 @@ For each configured AZ, the module creates four subnets:
 | Private App       | Application servers (ASG / ECS)      |
 | Private DB        | Databases (RDS / replicas)           |
 +-------------------+--------------------------------------+
-
+```
 Results in:
 - Multi-AZ high availability
 - Strict isolation between tiers
@@ -101,7 +101,7 @@ This enables:
 - for_each-based resource creation
 - Easy scaling to additional AZs
 
-
+```
 ## Traffic Flow
 
 ### Inbound Traffic
@@ -133,10 +133,11 @@ Bastion Host (Public Bastion Subnet)
    v
 Private App / DB
 
-
+```
 # ------------------------------------------------------------
 #  INPUTS
-# ------------------------------------------------------------
+#
+``` ------------------------------------------------------------
 +------------------+--------------------------------------+
 | Variable         | Description                          |
 +------------------+--------------------------------------+
@@ -145,7 +146,7 @@ Private App / DB
 | enable_nat       | Toggle NAT Gateways (default: true) |
 | tags             | Common resource tags                 |
 +------------------+--------------------------------------+
-
+```
 
 # ------------------------------------------------------------
 #  OUTPUTS
