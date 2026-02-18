@@ -64,7 +64,7 @@ application ingress.
 # ------------------------------------------------------------
 #  HOW IT WORKS
 # ------------------------------------------------------------
-
+```
 ## Inputs
 +--------------------+------------------------------------------------------+
 | Variable           | Description                                          |
@@ -81,6 +81,7 @@ application ingress.
 | my_ip              | Personal IP for admin access                          |
 | tags               | Common tags applied to all resources                  |
 +--------------------+------------------------------------------------------+
+```
 
 ## Logic
 - **CloudFront Prefix List**: Uses AWS-managed prefix list to restrict HTTPS access
@@ -97,6 +98,7 @@ application ingress.
 ## Traffic Flow Diagram
 Internet → CloudFront → ALB (HTTPS) → Target Group (Blue/Green) → EC2 App Servers
 
+```
 # ------------------------------------------------------------
 #  OUTPUTS
 # ------------------------------------------------------------
@@ -114,7 +116,7 @@ Internet → CloudFront → ALB (HTTPS) → Target Group (Blue/Green) → EC2 Ap
 | web_alb_arn            | ARN of the ALB                                   |
 | alb_logs_prefix        | S3 prefix for ALB logs                           |
 +------------------------+------------------------------------------------+
-
+```
 # ------------------------------------------------------------
 #  DESIGN NOTES
 # ------------------------------------------------------------
