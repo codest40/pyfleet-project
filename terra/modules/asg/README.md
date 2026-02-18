@@ -75,7 +75,7 @@ security groups, user data scripts, and CloudWatch agent for memory metrics.
 # ------------------------------------------------------------
 #  HOW IT WORKS
 # ------------------------------------------------------------
-
+```
 ## Inputs
 +-------------------------------+------------------------------------------------+
 | Variable                      | Description                                    |
@@ -108,7 +108,7 @@ security groups, user data scripts, and CloudWatch agent for memory metrics.
 | bastion_sg_id                   | Bastion SG ID for SSH access                     |
 | db_security_group_id            | DB SG ID for outbound traffic                    |
 +-------------------------------+------------------------------------------------+
-
+```
 ## Logic
 - **Launch Template**: Prepares EC2 instances with Docker, ECR, and CloudWatch agent; deploys PyFleet container as systemd service
 - **ASG**: Launches EC2 instances in private subnets, attaches to ALB target group, applies tags
@@ -123,7 +123,8 @@ ALB → Target Group (Blue/Green) → ASG Instances → Docker Container (PyFlee
 
 # ------------------------------------------------------------
 #  OUTPUTS
-# ------------------------------------------------------------
+#
+``` ------------------------------------------------------------
 +-------------------------------+------------------------------------------------+
 | Output                        | Description                                    |
 +-------------------------------+------------------------------------------------+
@@ -140,6 +141,7 @@ ALB → Target Group (Blue/Green) → ASG Instances → Docker Container (PyFlee
 | mem_high_alarm_name             | CloudWatch alarm for high memory                  |
 | mem_low_alarm_name              | CloudWatch alarm for low memory                   |
 +-------------------------------+------------------------------------------------+
+```
 
 # ------------------------------------------------------------
 #  DESIGN NOTES
