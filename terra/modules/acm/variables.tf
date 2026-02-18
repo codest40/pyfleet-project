@@ -3,13 +3,13 @@
 # ACM MODULE VARIABLES - PYFLEET
 # =======================================================
 
-# Domain name for the certificate (e.g., duckdns or custom domain)
+# Domain name for the certificate
 variable "domain_name" {
-  description = "Domain name for SSL certificate (e.g., app.duckdns.org)"
+  description = "Domain name for SSL certificate"
   type        = string
 }
 
-# Optional tags to attach to ACM certificates
+# tags to attach to ACM certificates
 variable "tags" {
   description = "Map of tags to attach to ACM certificates"
   type        = map(string)
