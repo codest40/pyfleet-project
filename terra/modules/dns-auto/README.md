@@ -8,12 +8,9 @@
 The DNS Automation module manages dynamic DNS updates for PyFleet
 applications. It supports:
 
-- Automatic updates of DuckDNS subdomains pointing to your ALB
+- Automatic updates of DuckDNS subdomains pointing to ALB
 - Optional AWS Route53 alias records for production-ready DNS
 
-**Note:** DuckDNS has no official Terraform provider. This module
-uses `null_resource` with `local-exec`, executed locally on the
-machine running Terraform, not inside AWS.
 
 # ------------------------------------------------------------
 #  WHAT THIS MODULE CREATES
@@ -21,7 +18,7 @@ machine running Terraform, not inside AWS.
 
 ## DuckDNS Subdomain Update
 - Executes a curl command via `null_resource.local-exec` to
-  update the public IP of your DuckDNS subdomain automatically
+  update the public IP of DuckDNS subdomain automatically
   whenever the ALB or CloudFront DNS changes.
 
 ## Optional Route53 Alias Record
@@ -46,7 +43,7 @@ machine running Terraform, not inside AWS.
 # ------------------------------------------------------------
 #  HOW IT WORKS
 # ------------------------------------------------------------
-
+```
 ## Inputs
 +------------------------+------------------------------------------------+
 | Variable               | Description                                    |
@@ -58,6 +55,7 @@ machine running Terraform, not inside AWS.
 | cloudfront_domain      | Optional CloudFront domain target              |
 | cloudfront_zone        | Optional CloudFront hosted zone ID             |
 +------------------------+------------------------------------------------+
+```
 
 ## Logic
 Determine the DNS target using coalescing logic:
@@ -72,14 +70,15 @@ Internet → DuckDNS → Route53 → ALB / CloudFront → PyFleet Application
 
 # ------------------------------------------------------------
 #  OUTPUTS
-# ------------------------------------------------------------
+#
+``` ------------------------------------------------------------
 +------------------+--------------------------------------+
 | Output           | Description                          |
 +------------------+--------------------------------------+
 | duckdns_domain   | DuckDNS subdomain being updated      |
 | route53_fqdn     | Fully-qualified domain name of Route53 alias |
 +------------------+--------------------------------------+
-
+```
 # ------------------------------------------------------------
 #  DESIGN NOTES
 # ------------------------------------------------------------
