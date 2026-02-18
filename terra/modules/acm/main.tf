@@ -12,7 +12,7 @@ resource "aws_acm_certificate" "regional_cert" {
 }
 
 # -------------------------
-# ACM Certificate for CloudFront (must be us-east-1)
+# ACM Certificate for CloudFront
 # -------------------------
 provider "aws" {
   alias  = "us_east_1"
