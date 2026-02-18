@@ -1,5 +1,5 @@
 # =======================================================
-# ASG Module v2 - Variables
+# ASG Modulee - Variables
 # =======================================================
 # - Supports CPU + Memory based auto-scaling
 # - Blue/Green deployment compatible
