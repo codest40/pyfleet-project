@@ -2,7 +2,7 @@
 
 PyFleet is an AWS-based infrastructure and CI/CD project designed to demonstrate a **production-oriented DevOps / Platform Engineering workflow** using Infrastructure as Code, secure CI/CD pipelines, and cloud-native best practices.
 
-This repository focuses on **correctness, separation of concerns, and gradual infrastructure maturity**, rather than speed or shortcuts.
+This repository focuses on correctness, separation of concerns, and gradual infrastructure maturity.
 
 ---
 
